@@ -1,4 +1,3 @@
-// backend/src/shared/types.ts
 export type FieldType = 'string' | 'number' | 'boolean' | 'date' | 'text';
 
 export interface ModelField {
@@ -44,4 +43,12 @@ export interface JwtPayload {
   sub: string;
   email: string;
   role: string;
+  iat?: number;
+  exp?: number;
+}
+
+export enum UserRole {
+  Admin = 'Admin',
+  Manager = 'Manager',
+  Viewer = 'Viewer',
 }

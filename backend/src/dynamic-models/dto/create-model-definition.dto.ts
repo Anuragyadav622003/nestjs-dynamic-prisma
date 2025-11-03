@@ -1,24 +1,31 @@
-// backend/src/dynamic-models/dto/create-model-definition.dto.ts
-import { IsString, IsArray, IsObject, IsOptional, IsBoolean, ValidateNested } from 'class-validator';
+import { IsString, IsArray, IsObject, IsOptional, IsBoolean, ValidateNested, IsEnum } from 'class-validator';
 import { Type } from 'class-transformer';
+import { ApiProperty } from '@nestjs/swagger';
+import { FieldType } from '../../shared/types';
 
 export class ModelFieldDto {
+  @ApiProperty({ example: 'name' })
   @IsString()
-  name: string;
+  name!: string;
 
-  @IsString()
-  type: 'string' | 'number' | 'boolean' | 'date' | 'text';
+  @ApiProperty({ enum: ['string', 'number', 'boolean', 'date', 'text'] })
+  @IsEnum(['string', 'number', 'boolean', 'date', 'text'])
+type!: FieldType;
 
+  @ApiProperty({ example: true })
   @IsBoolean()
-  required: boolean;
+  required!: boolean;
 
+  @ApiProperty({ required: false })
   @IsOptional()
   default?: any;
 
+  @ApiProperty({ required: false, default: false })
   @IsOptional()
   @IsBoolean()
   unique?: boolean;
 
+  @ApiProperty({ required: false })
   @IsOptional()
   @IsObject()
   relation?: {
@@ -28,22 +35,33 @@ export class ModelFieldDto {
 }
 
 export class CreateModelDefinitionDto {
+  @ApiProperty({ example: 'Product' })
   @IsString()
-  name: string;
+  name!: string;
 
-  @IsString()
+  @ApiProperty({ example: 'products', required: false })
   @IsOptional()
+  @IsString()
   tableName?: string;
 
+  @ApiProperty({ type: [ModelFieldDto] })
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => ModelFieldDto)
-  fields: ModelFieldDto[];
+  fields!: ModelFieldDto[];
 
-  @IsString()
+  @ApiProperty({ required: false })
   @IsOptional()
+  @IsString()
   ownerField?: string;
 
+  @ApiProperty({ 
+    example: { 
+      Admin: ['all'], 
+      Manager: ['create', 'read', 'update'], 
+      Viewer: ['read'] 
+    } 
+  })
   @IsObject()
-  rbac: Record<string, ('create' | 'read' | 'update' | 'delete' | 'all')[]>;
+  rbac!: Record<string, ('create' | 'read' | 'update' | 'delete' | 'all')[]>;
 }

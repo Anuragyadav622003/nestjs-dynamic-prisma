@@ -1,10 +1,12 @@
-// backend/src/shared/guards/rbac.guard.ts
-import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
+import { Injectable, CanActivate, ExecutionContext, ForbiddenException, Logger } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { PrismaService } from '../prisma.service';
+import { PrismaService } from '../../shared/prisma.service';
+import { UserRole } from '../../shared/types';
 
 @Injectable()
 export class RBACGuard implements CanActivate {
+  private readonly logger = new Logger(RBACGuard.name);
+
   constructor(
     private reflector: Reflector,
     private prisma: PrismaService,
@@ -13,6 +15,7 @@ export class RBACGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const requiredPermission = this.reflector.get<string>('permission', context.getHandler());
     
+    // If no permission is required, allow access
     if (!requiredPermission) {
       return true;
     }
@@ -24,7 +27,8 @@ export class RBACGuard implements CanActivate {
       throw new ForbiddenException('User not authenticated');
     }
 
-    if (user.role === 'Admin') {
+    // Admin has all permissions
+    if (user.role === UserRole.Admin) {
       return true;
     }
 
@@ -44,20 +48,30 @@ export class RBACGuard implements CanActivate {
     });
 
     if (!modelDef) {
-      throw new ForbiddenException('Model not found');
+      throw new ForbiddenException(`Model '${modelName}' not found`);
     } 
 
-    const permissions = (modelDef.rbac as any)[user.role] || [];
-    const hasPermission = permissions.includes('all') || permissions.includes(requiredPermission);
+    const rbacConfig = modelDef.rbac as any;
+    const rolePermissions: string[] = rbacConfig[user.role] || [];
+    
+    const hasPermission = rolePermissions.includes('all') || 
+                         rolePermissions.includes(requiredPermission);
 
     if (!hasPermission) {
-      throw new ForbiddenException('Insufficient permissions');
+      this.logger.warn(`User ${user.email} with role ${user.role} attempted ${requiredPermission} on ${modelName}`);
+      throw new ForbiddenException(`Insufficient permissions. Required: ${requiredPermission}`);
     }
 
+    // Ownership check for update/delete operations
     if (['update', 'delete'].includes(requiredPermission) && modelDef.ownerField) {
       const recordId = request.params.id;
       if (recordId) {
-        const canModify = await this.checkOwnership(modelDef.tableName, recordId, user.id, modelDef.ownerField);
+        const canModify = await this.checkOwnership(
+          modelDef.tableName, 
+          recordId, 
+          user.id, 
+          modelDef.ownerField
+        );
         if (!canModify) {
           throw new ForbiddenException('Not authorized to modify this record');
         }
@@ -73,6 +87,11 @@ export class RBACGuard implements CanActivate {
 
   private async checkOwnership(tableName: string, recordId: string, userId: string, ownerField: string): Promise<boolean> {
     try {
+      // Validate inputs to prevent SQL injection
+      if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(tableName) || !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(ownerField)) {
+        return false;
+      }
+
       const result = await this.prisma.$queryRawUnsafe(
         `SELECT * FROM "${tableName}" WHERE id = $1 AND "${ownerField}" = $2 LIMIT 1`,
         recordId,
@@ -81,7 +100,7 @@ export class RBACGuard implements CanActivate {
       
       return result.length > 0;
     } catch (error) {
-      console.error('Ownership check failed:', error);
+      this.logger.error('Ownership check failed:', error);
       return false;
     }
   }
