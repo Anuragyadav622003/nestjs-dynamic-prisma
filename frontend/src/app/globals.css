@@ -2,50 +2,152 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary-50: #eff6ff;
-  --color-primary-500: #3b82f6;
-  --color-primary-600: #2563eb;
-  --color-primary-700: #1d4ed8;
+  --color-background: hsl(0 0% 100%);
+  --color-foreground: hsl(222.2 84% 4.9%);
+  --color-card: hsl(0 0% 100%);
+  --color-card-foreground: hsl(222.2 84% 4.9%);
+  --color-popover: hsl(0 0% 100%);
+  --color-popover-foreground: hsl(222.2 84% 4.9%);
+  --color-primary: hsl(222.2 47.4% 11.2%);
+  --color-primary-foreground: hsl(210 40% 98%);
+  --color-secondary: hsl(210 40% 96%);
+  --color-secondary-foreground: hsl(222.2 47.4% 11.2%);
+  --color-muted: hsl(210 40% 96%);
+  --color-muted-foreground: hsl(215.4 16.3% 46.9%);
+  --color-accent: hsl(210 40% 96%);
+  --color-accent-foreground: hsl(222.2 47.4% 11.2%);
+  --color-destructive: hsl(0 84.2% 60.2%);
+  --color-destructive-foreground: hsl(210 40% 98%);
+  --color-border: hsl(214.3 31.8% 91.4%);
+  --color-input: hsl(214.3 31.8% 91.4%);
+  --color-ring: hsl(222.2 84% 4.9%);
+  --color-radius: 0.5rem;
+
+  /* Dark theme colors */
+  --color-dark-background: hsl(222.2 84% 4.9%);
+  --color-dark-foreground: hsl(210 40% 98%);
+  --color-dark-card: hsl(222.2 84% 4.9%);
+  --color-dark-card-foreground: hsl(210 40% 98%);
+  --color-dark-popover: hsl(222.2 84% 4.9%);
+  --color-dark-popover-foreground: hsl(210 40% 98%);
+  --color-dark-primary: hsl(210 40% 98%);
+  --color-dark-primary-foreground: hsl(222.2 47.4% 11.2%);
+  --color-dark-secondary: hsl(217.2 32.6% 17.5%);
+  --color-dark-secondary-foreground: hsl(210 40% 98%);
+  --color-dark-muted: hsl(217.2 32.6% 17.5%);
+  --color-dark-muted-foreground: hsl(215 20.2% 65.1%);
+  --color-dark-accent: hsl(217.2 32.6% 17.5%);
+  --color-dark-accent-foreground: hsl(210 40% 98%);
+  --color-dark-destructive: hsl(0 62.8% 30.6%);
+  --color-dark-destructive-foreground: hsl(210 40% 98%);
+  --color-dark-border: hsl(217.2 32.6% 17.5%);
+  --color-dark-input: hsl(217.2 32.6% 17.5%);
+  --color-dark-ring: hsl(212.7 26.8% 83.9%);
 }
 
-@layer base {
-  html {
-    font-family: 'Inter', system-ui, sans-serif;
-  }
-  
-  body {
-    @apply bg-gray-50 text-gray-900 antialiased;
-  }
+/* Base styles with CSS variables for dark mode */
+:root {
+  --background: var(--color-background);
+  --foreground: var(--color-foreground);
+  --card: var(--color-card);
+  --card-foreground: var(--color-card-foreground);
+  --popover: var(--color-popover);
+  --popover-foreground: var(--color-popover-foreground);
+  --primary: var(--color-primary);
+  --primary-foreground: var(--color-primary-foreground);
+  --secondary: var(--color-secondary);
+  --secondary-foreground: var(--color-secondary-foreground);
+  --muted: var(--color-muted);
+  --muted-foreground: var(--color-muted-foreground);
+  --accent: var(--color-accent);
+  --accent-foreground: var(--color-accent-foreground);
+  --destructive: var(--color-destructive);
+  --destructive-foreground: var(--color-destructive-foreground);
+  --border: var(--color-border);
+  --input: var(--color-input);
+  --ring: var(--color-ring);
+  --radius: var(--color-radius);
+}
 
-  /* Fix input text colors */
-  input, textarea, select {
-    @apply text-gray-900 bg-white;
-  }
+.dark {
+  --background: var(--color-dark-background);
+  --foreground: var(--color-dark-foreground);
+  --card: var(--color-dark-card);
+  --card-foreground: var(--color-dark-card-foreground);
+  --popover: var(--color-dark-popover);
+  --popover-foreground: var(--color-dark-popover-foreground);
+  --primary: var(--color-dark-primary);
+  --primary-foreground: var(--color-dark-primary-foreground);
+  --secondary: var(--color-dark-secondary);
+  --secondary-foreground: var(--color-dark-secondary-foreground);
+  --muted: var(--color-dark-muted);
+  --muted-foreground: var(--color-dark-muted-foreground);
+  --accent: var(--color-dark-accent);
+  --accent-foreground: var(--color-dark-accent-foreground);
+  --destructive: var(--color-dark-destructive);
+  --destructive-foreground: var(--color-dark-destructive-foreground);
+  --border: var(--color-dark-border);
+  --input: var(--color-dark-input);
+  --ring: var(--color-dark-ring);
+}
 
-  input::placeholder, textarea::placeholder {
-    @apply text-gray-500;
-  }
+/* Base styles */
+* {
+  border-color: var(--border);
+}
 
-  /* Ensure dark text on light backgrounds */
-  .bg-white {
-    @apply text-gray-900;
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+/* Custom scrollbar for modern browsers */
+@supports (scrollbar-width: thin) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(215 20.2% 65.1%) transparent;
   }
 }
 
-@layer components {
-  .btn-primary {
-    @apply bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
-  }
-  
-  .btn-secondary {
-    @apply bg-gray-500 hover:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200;
-  }
-  
-  .input-field {
-    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-gray-900 placeholder-gray-500;
-  }
-  
-  .card {
-    @apply bg-white rounded-lg shadow-sm border border-gray-200;
-  }
+/* Webkit scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(215 20.2% 65.1%);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(215 20.2% 55.1%);
+}
+
+/* Glass morphism utility */
+.glass {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dark .glass {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Gradient text utility */
+.gradient-text {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Smooth transitions */
+* {
+  transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
 }

@@ -76,7 +76,7 @@ function RecordForm({ modelDefinition, initialData, onSave, onCancel }: RecordFo
                     required: field.required 
                   })}
                   defaultValue={initialData?.[field.name]}
-                  className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
+                  className="w-full text-black p-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
                 />
               )}
               {errors[field.name] && (

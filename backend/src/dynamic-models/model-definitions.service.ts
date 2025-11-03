@@ -15,18 +15,38 @@ export class ModelDefinitionsService {
     this.validateModelName(createDto.name);
     this.validateTableName(tableName);
 
-    // Check for existing model
-    const existingModel = await this.prisma.modelDefinition.findFirst({
+    // Check for table name uniqueness (table names must be globally unique)
+    const existingTableModel = await this.prisma.modelDefinition.findFirst({
       where: {
-        OR: [
-          { name: createDto.name },
-          { tableName: tableName }
-        ]
+        tableName: tableName,
+        isActive: true
       }
     });
 
-    if (existingModel) {
-      throw new ConflictException('Model with this name or table name already exists');
+    if (existingTableModel) {
+      throw new ConflictException(
+        `Table name '${tableName}' is already used by model '${existingTableModel.name}'. ` +
+        `Please choose a different table name.`
+      );
+    }
+
+    // Check for same model name (allow but inform user)
+    const sameNameModels = await this.prisma.modelDefinition.findMany({
+      where: {
+        name: createDto.name,
+        isActive: true
+      },
+      select: {
+        tableName: true,
+        createdAt: true
+      }
+    });
+
+    let warningMessage = '';
+    if (sameNameModels.length > 0) {
+      const existingTables = sameNameModels.map(m => m.tableName).join(', ');
+      warningMessage = `Note: Model name '${createDto.name}' already exists with tables: ${existingTables}. This is allowed for versioning or multi-tenant scenarios.`;
+      this.logger.warn(warningMessage);
     }
 
     // Validate fields
@@ -45,8 +65,27 @@ export class ModelDefinitionsService {
 
       await this.createDynamicTable(tableName, createDto.fields);
 
+      const response: any = {
+        message: 'Model created successfully',
+        model: {
+          id: modelDef.id,
+          name: modelDef.name,
+          tableName: modelDef.tableName,
+          fields: modelDef.fields,
+          ownerField: modelDef.ownerField,
+          rbac: modelDef.rbac,
+          createdAt: modelDef.createdAt,
+          isActive: modelDef.isActive
+        }
+      };
+
+      if (warningMessage) {
+        response.warning = warningMessage;
+      }
+
       this.logger.log(`✅ Model '${createDto.name}' created with table '${tableName}'`);
-      return modelDef;
+      return response;
+      
     } catch (error: any) {
       this.logger.error('Failed to create model definition:', error);
       throw new BadRequestException('Failed to create model definition');
@@ -55,10 +94,34 @@ export class ModelDefinitionsService {
 
   async findAll() {
     try {
-      return await this.prisma.modelDefinition.findMany({
+      const models = await this.prisma.modelDefinition.findMany({
         where: { isActive: true },
         orderBy: { createdAt: 'desc' },
       });
+
+      // Group models by name for better visualization
+      const groupedModels = models.reduce((acc, model) => {
+        if (!acc[model.name]) {
+          acc[model.name] = [];
+        }
+        acc[model.name].push({
+          id: model.id,
+          tableName: model.tableName,
+          fields: model.fields,
+          ownerField: model.ownerField,
+          rbac: model.rbac,
+          createdAt: model.createdAt,
+          updatedAt: model.updatedAt
+        });
+        return acc;
+      }, {});
+
+      return {
+        models,
+        groupedByModelName: groupedModels,
+        total: models.length,
+        uniqueModelNames: Object.keys(groupedModels).length
+      };
     } catch (error: any) {
       this.logger.error('Failed to fetch model definitions:', error);
       throw new BadRequestException('Failed to fetch model definitions');
@@ -87,6 +150,33 @@ export class ModelDefinitionsService {
     }
   }
 
+  async findByName(modelName: string) {
+    try {
+      const models = await this.prisma.modelDefinition.findMany({
+        where: { 
+          name: modelName,
+          isActive: true 
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+
+      if (models.length === 0) {
+        throw new NotFoundException(`No models found with name '${modelName}'`);
+      }
+
+      return {
+        modelName,
+        instances: models,
+        totalInstances: models.length,
+        tables: models.map(m => m.tableName)
+      };
+    } catch (error: any) {
+      if (error instanceof NotFoundException) throw error;
+      this.logger.error(`Failed to fetch models by name '${modelName}':`, error);
+      throw new BadRequestException('Failed to fetch models');
+    }
+  }
+
   async remove(id: string) {
     if (!this.isValidUUID(id)) {
       throw new BadRequestException('Invalid ID format');
@@ -108,6 +198,31 @@ export class ModelDefinitionsService {
     } catch (error: any) {
       if (error instanceof NotFoundException) throw error;
       this.logger.error(`Failed to delete model definition ${id}:`, error);
+      throw new BadRequestException('Failed to delete model definition');
+    }
+  }
+
+  async removeByNameAndTable(modelName: string, tableName: string) {
+    try {
+      const modelDef = await this.prisma.modelDefinition.findFirst({
+        where: { 
+          name: modelName,
+          tableName: tableName,
+          isActive: true 
+        },
+      });
+
+      if (!modelDef) {
+        throw new NotFoundException(`Model '${modelName}' with table '${tableName}' not found`);
+      }
+
+      return await this.prisma.modelDefinition.update({
+        where: { id: modelDef.id },
+        data: { isActive: false },
+      });
+    } catch (error: any) {
+      if (error instanceof NotFoundException) throw error;
+      this.logger.error(`Failed to delete model '${modelName}' with table '${tableName}':`, error);
       throw new BadRequestException('Failed to delete model definition');
     }
   }

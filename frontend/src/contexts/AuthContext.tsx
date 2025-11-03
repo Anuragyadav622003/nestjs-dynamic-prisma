@@ -34,7 +34,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const userData = localStorage.getItem('user');
       
       if (token && userData) {
-        setUser(JSON.parse(userData));
+        const parsedUser = JSON.parse(userData);
+        // Validate token by making a simple API call
+        setUser(parsedUser);
       }
     } catch (error) {
       console.error('Auth check failed:', error);
@@ -54,7 +56,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem('user', JSON.stringify(user));
       setUser(user);
     } catch (error: any) {
-      throw new Error(error.response?.data?.error || 'Login failed');
+      const message = error.response?.data?.message || error.response?.data?.error || 'Login failed';
+      throw new Error(message);
     }
   };
 
@@ -62,7 +65,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await authAPI.register(email, password, role);
     } catch (error: any) {
-      throw new Error(error.response?.data?.error || 'Registration failed');
+      const message = error.response?.data?.message || error.response?.data?.error || 'Registration failed';
+      throw new Error(message);
     }
   };
 

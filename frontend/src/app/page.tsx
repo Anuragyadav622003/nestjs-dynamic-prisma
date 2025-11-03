@@ -20,10 +20,17 @@ export default function Home() {
   }, [user, isLoading, router]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500 mx-auto"></div>
-        <p className="mt-4 text-lg text-gray-600">Loading...</p>
+    <div className="min-h-screen flex items-center justify-center bg-slate-950">
+      <div className="text-center space-y-6">
+        <div className="flex justify-center">
+          <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center animate-pulse">
+            <div className="w-10 h-10 bg-white/20 rounded-lg animate-spin"></div>
+          </div>
+        </div>
+        <div>
+          <h2 className="text-2xl font-bold text-white mb-2">DataForge</h2>
+          <p className="text-slate-400">Redirecting to your destination...</p>
+        </div>
       </div>
     </div>
   );

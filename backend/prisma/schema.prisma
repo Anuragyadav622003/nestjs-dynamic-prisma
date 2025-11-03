@@ -20,8 +20,8 @@ model User {
 
 model ModelDefinition {
   id         String   @id @default(cuid())
-  name       String   @unique
-  tableName  String   @unique
+  name       String   // REMOVED @unique constraint
+  tableName  String   @unique  // Keep tableName unique
   fields     Json
   ownerField String?
   rbac       Json
@@ -30,6 +30,7 @@ model ModelDefinition {
   isActive   Boolean  @default(true)
 
   @@map("model_definitions")
+  @@unique([name, tableName]) // Add composite unique constraint
 }
 
 enum UserRole {
