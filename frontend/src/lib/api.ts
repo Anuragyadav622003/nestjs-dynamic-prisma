@@ -1,11 +1,10 @@
 // frontend/src/lib/api.ts
 import axios from 'axios';
 
-const API_BASE_URL =  'http://localhost:3000'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
-  withCredentials: true, // 🔥 This enables CORS with cookies/auth headers
 });
 
 // Request interceptor to add auth token
@@ -16,7 +15,7 @@ api.interceptors.request.use((config) => {
       config.headers.Authorization = `Bearer ${token}`;
     }
   }
-  return config; 
+  return config;
 });
 
 // Response interceptor to handle errors
