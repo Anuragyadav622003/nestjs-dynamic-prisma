@@ -16,7 +16,6 @@ async function bootstrap() {
     origin: [
       'https://dataforge-platform-c2tj.vercel.app',
     ],
-    credentials: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     allowedHeaders: 'Content-Type, Authorization, X-Requested-With',
   });
