@@ -24,10 +24,12 @@ async function bootstrap() {
 //   optionsSuccessStatus: 204,
 // });
 app.enableCors({
-  origin: '*',
+  origin: (origin, callback) => {
+    callback(null, true); // dynamically allow any origin
+  },
   methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['*'],
-  credentials: false,
+  credentials: true,
 });
 
  
