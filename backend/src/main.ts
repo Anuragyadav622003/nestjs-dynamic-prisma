@@ -18,10 +18,9 @@ async function bootstrap() {
   // });
 
    app.enableCors({
-    origin: 'https://dataforge-platform-c2tj.vercel.app',
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    credentials: true,
-    allowedHeaders: 'Content-Type, Authorization',
+origin: '*', // ✅ allow all origins
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+  allowedHeaders: '*', // ✅ allow all headers
   });
  
   const config = new DocumentBuilder()
