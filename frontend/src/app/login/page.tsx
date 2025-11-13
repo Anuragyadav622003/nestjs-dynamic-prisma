@@ -35,6 +35,25 @@ export default function LoginPage() {
     } finally {
       setIsLoading(false);
     }
+ try {
+    const response = await fetch('https://dataforge-platform.vercel.app/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json', // Important!
+      },
+      body: JSON.stringify({ email, password }),
+      // credentials: 'include', // only if backend uses cookies
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log('Login response:', data);
+  } catch (error) {
+    console.error('Login failed:', error);
+  }
   };
 
   return (
