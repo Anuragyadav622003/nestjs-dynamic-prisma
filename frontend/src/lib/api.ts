@@ -1,11 +1,10 @@
 // frontend/src/lib/api.ts
 import axios from 'axios';
 
-const API_BASE_URL = "https://dataforge-platform.vercel.app" 
+const API_BASE_URL="https://dataforge-platform.vercel.app"
 
 export const api = axios.create({
   baseURL: API_BASE_URL,
-  withCredentials:true
 });
 
 // Request interceptor to add auth token
