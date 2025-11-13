@@ -12,17 +12,8 @@ async function bootstrap() {
     whitelist: true,
     forbidNonWhitelisted: true,
   }));
-   app.enableCors({
-    origin: [
-      'https://dataforge-platform-c2tj.vercel.app', // your frontend
-      'http://localhost:5173', // optional dev
-    ],
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-    credentials: true,
-    optionsSuccessStatus: 200, // for legacy browsers
-  });
-  
+   app.enableCors();
+
   const config = new DocumentBuilder()
     .setTitle('CRUD Platform API')
     .setDescription('Auto-generated CRUD + RBAC Platform')
