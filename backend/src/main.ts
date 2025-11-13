@@ -14,11 +14,20 @@ async function bootstrap() {
   
   
   
-  app.enableCors();
+ app.enableCors({
+    origin: [
+      'https://dataforge-platform-c2tj.vercel.app', // your frontend
+      'http://localhost:3000',
+      'http://localhost:3001',
+    ],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: false, // since you're not using cookies
+  });
 
 
 
-  
+
  
   const config = new DocumentBuilder()
     .setTitle('CRUD Platform API')
