@@ -12,7 +12,7 @@ async function bootstrap() {
     whitelist: true,
     forbidNonWhitelisted: true,
   }));
-   app.enableCors();
+  // app.enableCors();
 
   const config = new DocumentBuilder()
     .setTitle('CRUD Platform API')
