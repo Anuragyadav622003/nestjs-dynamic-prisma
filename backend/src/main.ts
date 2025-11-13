@@ -13,7 +13,7 @@ async function bootstrap() {
   }));
   
   app.enableCors({
-    origin: ['https://dataforge-platform-c2tj.vercel.app/login','http://localhost:3001' ],
+    origin: ['https://dataforge-platform-c2tj.vercel.app','http://localhost:3001' ],
     credentials: true,
   });
  
