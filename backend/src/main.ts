@@ -4,6 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   
@@ -12,10 +13,6 @@ async function bootstrap() {
     forbidNonWhitelisted: true,
   }));
   
- app.enableCors({
-  origin: true, // dynamically mirrors request origin
-  credentials: true,
-});
   const config = new DocumentBuilder()
     .setTitle('CRUD Platform API')
     .setDescription('Auto-generated CRUD + RBAC Platform')
